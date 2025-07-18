@@ -1,0 +1,176 @@
+local IceLibrary = loadstring(game:HttpGet("https://github.com/contateste8/IceLibraryY/raw/refs/heads/main/IceLibrary.lua"))()
+WindowSetTitle("Glitch Player")
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+
+local displayName = LocalPlayer.DisplayName
+
+local HomeTab = AddTab("Home")
+local Tab1 = AddTab("Glitch Players")
+
+AddUserMessage(HomeTab, "Hey " .. displayName .. " ")
+
+AddSection(Tab1, "Glitch Selected Players")
+
+local selectedPlayers = {}
+
+local PlayersMultiDropdown = AddMultiDropdown(Tab1, "Players", {}, function(selected)
+	selectedPlayers = selected
+end)
+
+local function updatePlayersMulti()
+	local currentNames = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then
+			table.insert(currentNames, p.Name)
+		end
+	end
+
+	for _, frame in ipairs(PlayersMultiDropdown.Holder:GetDescendants()) do
+		if frame:IsA("TextButton") and not table.find(currentNames, frame.Text) then
+			PlayersMultiDropdown.RemoveOption(frame.Text)
+		end
+	end
+
+	for _, name in ipairs(currentNames) do
+		local exists = false
+		for _, frame in ipairs(PlayersMultiDropdown.Holder:GetDescendants()) do
+			if frame:IsA("TextButton") and frame.Text == name then
+				exists = true
+				break
+			end
+		end
+		if not exists then
+			PlayersMultiDropdown.AddOption(name)
+		end
+	end
+
+	for i = #selectedPlayers, 1, -1 do
+		if not table.find(currentNames, selectedPlayers[i]) then
+			table.remove(selectedPlayers, i)
+		end
+	end
+
+	for _, name in ipairs(selectedPlayers) do
+		if table.find(currentNames, name) then
+			PlayersMultiDropdown.SelectOption(name)
+		end
+	end
+end
+
+Players.PlayerAdded:Connect(updatePlayersMulti)
+Players.PlayerRemoving:Connect(updatePlayersMulti)
+updatePlayersMulti()
+
+local GlitchActive = false
+
+AddToggle(Tab1, "Glitch Selected Players", false, function(state)
+	GlitchActive = state
+
+	if state then
+	task.spawn(function()
+		while GlitchActive do
+			for _, playerName in ipairs(selectedPlayers) do
+				task.spawn(function()
+					local target = Players:FindFirstChild(playerName)
+					local targetHRP = target and target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+
+					local backpack = LocalPlayer:FindFirstChild("Backpack")
+					local assault = backpack and backpack:FindFirstChild("Assault")
+					local gunScript = assault and assault:FindFirstChild("GunScript_Local")
+					local muzzleEffect = gunScript and gunScript:FindFirstChild("MuzzleEffect")
+					local hitEffect = gunScript and gunScript:FindFirstChild("HitEffect")
+
+					if targetHRP and muzzleEffect and hitEffect then
+						local args = {
+							[1] = targetHRP,
+							[2] = targetHRP,
+							[3] = Vector3.new(100000000376832, 100000000376832, 100000000376832),
+							[4] = Vector3.new(8.314091682434082, 2.012237787246704, -26.322668075561523),
+							[5] = muzzleEffect,
+							[6] = hitEffect,
+							[7] = 0,
+							[8] = 0,
+							[9] = { [1] = false },
+							[10] = {
+								[1] = 25,
+								[2] = Vector3.new(100, 100, 100),
+								[3] = BrickColor.new(29),
+								[4] = 0.25,
+								[5] = Enum.Material.SmoothPlastic,
+								[6] = 0.25
+							},
+							[11] = true,
+							[12] = false
+						}
+						ReplicatedStorage.RE:FindFirstChild("1Gu1n"):FireServer(unpack(args))
+					end
+				end)
+			end
+			task.wait()
+		end
+	end)
+end
+end)
+
+AddSection(Tab1, "Glitch All Players")
+
+local GlitchAllToggle = false
+
+AddToggle(Tab1, "Glitch All", false, function(state)
+	GlitchAllToggle = state
+	if state then
+		task.spawn(function()
+			while GlitchAllToggle do
+				for _, player in ipairs(Players:GetPlayers()) do
+					if player ~= LocalPlayer and player.Character then
+						local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+						if hrp then
+							local backpack = LocalPlayer:FindFirstChild("Backpack")
+							local assault = backpack and backpack:FindFirstChild("Assault")
+							local gunScript = assault and assault:FindFirstChild("GunScript_Local")
+							local muzzleEffect = gunScript and gunScript:FindFirstChild("MuzzleEffect")
+							local hitEffect = gunScript and gunScript:FindFirstChild("HitEffect")
+
+							if muzzleEffect and hitEffect then
+								local args = {
+									[1] = hrp,
+									[2] = hrp,
+									[3] = Vector3.new(100000000376832, 100000000376832, 100000000376832),
+									[4] = Vector3.new(8.314091682434082, 2.012237787246704, -26.322668075561523),
+									[5] = muzzleEffect,
+									[6] = hitEffect,
+									[7] = 0,
+									[8] = 0,
+									[9] = { [1] = false },
+									[10] = {
+										[1] = 25,
+										[2] = Vector3.new(100, 100, 100),
+										[3] = BrickColor.new(29),
+										[4] = 0.25,
+										[5] = Enum.Material.SmoothPlastic,
+										[6] = 0.25
+									},
+									[11] = true,
+									[12] = false
+								}
+								ReplicatedStorage.RE:FindFirstChild("1Gu1n"):FireServer(unpack(args))
+							end
+						end
+					end
+					task.wait()
+				end
+				task.wait()
+			end
+		end)
+	end
+end)
+
+local args = {
+    [1] = "PickingTools",
+    [2] = "Assault"
+}
+
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
